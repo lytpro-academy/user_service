@@ -17,12 +17,6 @@ public class Users {
 
     public Users() {}
 
-    public Users(String name, String occupation, int age) {
-        this.name = name;
-        this.occupation = occupation;
-        this.age = age;
-    }
-
     public void setId(int id) {
         this.id = id;
     }

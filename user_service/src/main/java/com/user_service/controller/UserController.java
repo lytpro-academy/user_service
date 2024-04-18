@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
@@ -20,7 +21,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    Users users = new Users();
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -32,14 +32,26 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "404", description = "Resource not found")
     })
-    public ResponseEntity<Users> createUsers() {
-        //users.setId(1);
-        users.setName("John Doe");
-        users.setAge(23);
-        users.setOccupation("Engineer");
-        users = userService.createUser(users);
+    public ResponseEntity<Users> createUsers(@RequestParam String name, @RequestParam String occupation, @RequestParam Integer age ) {
+        Users users = new Users();
+        users.setName(name);
+        users.setOccupation(occupation);
+        users.setAge(age);
+        users = userService.createOrUpdateUser(users);
         return new ResponseEntity<>(users, HttpStatus.CREATED);
     }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get all users", description = "This will provide all the users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Resource not found")
+    })
+    public ResponseEntity<Users> getById(@PathVariable Integer id) {
+        Optional<Users> users = userService.getUserById(id);
+        return users.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
 
     @GetMapping
     @Operation(summary = "Get all users", description = "This will provide all the users")
@@ -52,26 +64,33 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Operation(summary = "Update user", description = "This will update the user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "404", description = "Resource not found")
     })
-    public ResponseEntity<Users> updateUser() {
-        users.setName("David");
-        users = userService.updateUser(users);
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    public ResponseEntity<Users> updateUser(@PathVariable Integer id, @RequestParam String name, @RequestParam String occupation, @RequestParam Integer age) {
+        Optional<Users> users = userService.getUserById(id);
+        if (users.isPresent()) {
+            Users user = users.get();
+            user.setName(name);
+            user.setOccupation(occupation);
+            user.setAge(age);
+            user = userService.createOrUpdateUser(user);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete User", description = "This will delete specific user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "404", description = "Resource not found")
     })
-    public ResponseEntity<String> deleteUser() {
-        userService.deleteUser(users.getId());
+    public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
+        userService.deleteUserById(id);
         return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
     }
 
