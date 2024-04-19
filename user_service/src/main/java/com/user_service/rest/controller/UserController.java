@@ -1,6 +1,8 @@
-package com.user_service.controller;
+package com.user_service.rest.controller;
 
 import com.user_service.entity.Users;
+import com.user_service.rest.dao.UserDao;
+import com.user_service.rest.dto.UserDto;
 import com.user_service.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +21,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/user")
 @Tag(name = "User Controller", description = "APIs for User management")
+@AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserDao userDao;
 
     @PostMapping()
     @Operation(summary = "Create user", description = "This api is creating Users")
@@ -32,13 +33,10 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "404", description = "Resource not found")
     })
-    public ResponseEntity<Users> createUsers(@RequestParam String name, @RequestParam String occupation, @RequestParam Integer age ) {
-        Users users = new Users();
-        users.setName(name);
-        users.setOccupation(occupation);
-        users.setAge(age);
-        users = userService.createOrUpdateUser(users);
-        return new ResponseEntity<>(users, HttpStatus.CREATED);
+    public ResponseEntity<Users> createUsers(@RequestBody UserDto userDto) {
+        Users user = userDao.mapRequestToUserEntity(userDto);
+        user = userService.createOrUpdateUser(user);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
