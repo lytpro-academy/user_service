@@ -4,6 +4,7 @@ import com.user_service.entity.Users;
 import com.user_service.rest.dao.UserDao;
 import com.user_service.rest.dto.UserDto;
 import com.user_service.service.UserService;
+import com.user_service.util.exception.UserException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,10 +47,10 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Resource not found")
     })
     public ResponseEntity<Users> getById(@PathVariable Integer id) {
-        Optional<Users> users = userService.getUserById(id);
-        return users.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Users user = userService.getUserById(id)
+                .orElseThrow(() -> new UserException("User not found with id: " + id));
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
 
     @GetMapping
     @Operation(summary = "Get all users", description = "This will provide all the users")
@@ -78,7 +79,7 @@ public class UserController {
             user = userService.createOrUpdateUser(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new UserException("User not found with id: " + id);
     }
 
     @DeleteMapping("/{id}")
@@ -92,5 +93,40 @@ public class UserController {
         return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Users> patchUser(@PathVariable Integer id, @RequestBody  UserDto userDto) {
+        Optional<Users> users = userService.getUserById(id);
+        if (users.isPresent()) {
+            Users user = users.get();
+            user.setName(userDto.getName());
+            if (userDto.getOccupation() != null) user.setOccupation(userDto.getOccupation());
+            user.setAge(userDto.getAge());
+            user = userService.createOrUpdateUser(user);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else throw new UserException("User not found with id: " + id);
+    }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.HEAD)
+    public void checkUserExistence(@PathVariable int id) {
+        Optional<Users> users = userService.getUserById(id);
+        if (!users.isPresent()) {
+            throw new RuntimeException("User Doesnt exist");
+        }
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.OPTIONS)
+    public String allowedMethods() {
+        return "Allowed methods: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE";
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.TRACE)
+    public String echoRequest(@PathVariable int id, @RequestBody String body) {
+        return "Echoing request for user with id " + id + ": " + body;
+    }
+
+    @ExceptionHandler(UserException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleUserNotFoundException(UserException ex) {
+        return ex.getMessage();
+    }
 }

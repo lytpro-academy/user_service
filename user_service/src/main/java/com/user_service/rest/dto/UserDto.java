@@ -9,7 +9,9 @@ import lombok.NonNull;
 public class UserDto {
     @NonNull
     private String name;
+
     private String occupation;
+
     @NonNull
-    private int age;
+    private Integer age;
 }
