@@ -9,3 +9,7 @@ spring:
   h2:
     console:
       enabled: true
+## Generate API key from https://home.openweathermap.org/api_keys
+openweathermap:
+  api:
+    key=YOUR_API_KEY:
