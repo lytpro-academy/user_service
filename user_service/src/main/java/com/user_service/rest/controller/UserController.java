@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = String.class))),
             @ApiResponse(responseCode = "404", description = "Resource not found")
     })
-    public ResponseEntity<Users> createUsers(@RequestBody UserDto userDto) {
+    public ResponseEntity<Users> createUsers(@Validated @RequestBody UserDto userDto) {
         Users user = userDao.mapRequestToUserEntity(userDto);
         user = userService.createOrUpdateUser(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
