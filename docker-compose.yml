@@ -1,12 +1,34 @@
 version: '3.8'
+
 services:
-  db:
-    image: mongo:latest
+  mysql:
+    image: mysql:latest  # Use the latest MySQL Docker image
+    container_name: mysql_database  # Set the container name for MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: password  # Set the root password for MySQL
+      MYSQL_DATABASE: testDB  # Create a database named 'testDB'
+      MYSQL_USER: root  # Set the username for MySQL
+      MYSQL_PASSWORD: password  # Set the password for the specified user
     ports:
-      - '27017:27017'
+      - "3306:3306"  # Expose port 3306 on the host machine to port 3306 in the container
+    restart: always  # Always restart the container if it stops unexpectedly
     volumes:
-      - db:/data/db
-volumes:
-  db:
-    driver:
-      local
+      - ./data/mysql:/var/lib/mysql  # Mount a host directory to store MySQL data files
+      - ./src/main/resources:/docker-entrypoint-initdb.d  # Mount SQL initialization scripts into the MySQL container
+
+  user-service:
+    build:
+      context: .  # Build the Docker image using the current directory
+      dockerfile: Dockerfile  # Use the specified Dockerfile for building the image
+    depends_on:
+      - mysql  # Depend on the MySQL service, ensuring it starts before this service
+    restart: always  # Always restart the container if it stops unexpectedly
+    ports:
+      - "8080:8080"  # Expose port 8080 on the host machine to port 8080 in the container
+    volumes:
+      - /tmp  # Mount a temporary directory into the container
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/testDB?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true  # JDBC URL for connecting to MySQL database
+      SPRING_DATASOURCE_USERNAME: root  # Username for database authentication
+      SPRING_DATASOURCE_PASSWORD: password  # Password for database authentication
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.cj.jdbc.Driver  # JDBC driver class name for MySQL

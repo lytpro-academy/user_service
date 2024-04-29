@@ -1,15 +1,26 @@
-spring:
+spring:  # Spring Boot configuration
   application:
-    name: user_service
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
-  h2:
-    console:
-      enabled: true
+    name: user_service  # Setting the name of the Spring Boot application
+  datasource:  # Configuration related to data source (database)
+    url: jdbc:mysql://mysql:3306/testDB?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true  # JDBC URL for connecting to MySQL database
+    username: root  # Username for database authentication
+    password: password  # Password for database authentication
+    driver-class-name: com.mysql.cj.jdbc.Driver  # JDBC driver class name for MySQL
+  jpa:  # Configuration related to Java Persistence API (JPA)
+    hibernate:  # Hibernate specific configuration
+      ddl-auto: update  # Automatically update the database schema based on entity classes
+    properties:  # Additional properties for Hibernate
+      hbm2ddl.auto: update  # Hibernate specific setting to update database schema
+      dialect: org.hibernate.dialect.MySQL8Dialect  # Dialect for MySQL 8 database
+      generate-ddl: true  # Generate the SQL for database schema (for debugging)
+      show-sql: true  # Show SQL statements executed by Hibernate (for debugging)
+
+
 ## Generate API key from https://home.openweathermap.org/api_keys
 openweathermap:
   api:
-    key=YOUR_API_KEY:
+    key: YOUR_API_KEY
+
+# Launch the default browser when starting the application in development mode
+vaadin:
+  launch-browser: true
