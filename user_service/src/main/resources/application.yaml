@@ -14,7 +14,11 @@ spring:  # Spring Boot configuration
       dialect: org.hibernate.dialect.MySQL8Dialect  # Dialect for MySQL 8 database
       generate-ddl: true  # Generate the SQL for database schema (for debugging)
       show-sql: true  # Show SQL statements executed by Hibernate (for debugging)
-
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
 
 ## Generate API key from https://home.openweathermap.org/api_keys
 openweathermap:

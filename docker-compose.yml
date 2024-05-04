@@ -16,12 +16,26 @@ services:
       - ./data/mysql:/var/lib/mysql  # Mount a host directory to store MySQL data files
       - ./src/main/resources:/docker-entrypoint-initdb.d  # Mount SQL initialization scripts into the MySQL container
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq_server
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Optional: RabbitMQ management UI
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
   user-service:
     build:
       context: .  # Build the Docker image using the current directory
       dockerfile: Dockerfile  # Use the specified Dockerfile for building the image
     depends_on:
       - mysql  # Depend on the MySQL service, ensuring it starts before this service
+      - rabbitmq  # Depend on the RabbitMQ service, ensuring it starts before this service
     restart: always  # Always restart the container if it stops unexpectedly
     ports:
       - "8080:8080"  # Expose port 8080 on the host machine to port 8080 in the container
@@ -32,3 +46,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root  # Username for database authentication
       SPRING_DATASOURCE_PASSWORD: password  # Password for database authentication
       SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.cj.jdbc.Driver  # JDBC driver class name for MySQL
+      SPRING_RABBITMQ_HOST: rabbitmq  # RabbitMQ host name
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest  # RabbitMQ username
+      SPRING_RABBITMQ_PASSWORD: guest  # RabbitMQ password
