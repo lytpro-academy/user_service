@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,10 +41,10 @@ class UserControllerTest {
 
     @Test
     void createOrSaveUser() throws Exception{
-        when(userService.createOrUpdateUser(any())).thenReturn(Users.builder().name("Tom").age(12).occupation("Dev").build());
+        when(userService.createOrUpdateUser(any())).thenReturn(Users.builder().name("Tom").age(12).occupation("Dev").createdAt(new Date()).updatedAt(new Date()).build());
         mvc.perform(MockMvcRequestBuilders.
                         post("/api/user").contentType(MediaType.APPLICATION_JSON_VALUE).
-                        content(new ObjectMapper().writeValueAsString(UserDto.builder().name("Tom").age(12).occupation("Dev").build())).
+                        content(new ObjectMapper().writeValueAsString(UserDto.builder().name("Tom").age(12).occupation("Dev").createdAt(new Date()).updatedAt(new Date()).build())).
                         accept(MediaType.APPLICATION_JSON_VALUE)).
                 andDo(print()).
                 andExpect(status().isCreated()).
@@ -54,7 +55,7 @@ class UserControllerTest {
     void getById_Success() throws Exception {
         // Mocking a successful scenario where user with id exists
         int userId = 1;
-        Users user = Users.builder().id(userId).name("John").age(30).occupation("Engineer").build();
+        Users user = Users.builder().id(userId).name("John").age(30).occupation("Engineer").createdAt(new Date()).updatedAt(new Date()).build();
         when(userService.getUserById(userId)).thenReturn(Optional.of(user));
 
         mvc.perform(MockMvcRequestBuilders
@@ -84,8 +85,8 @@ class UserControllerTest {
     void getAllUser_Success() throws Exception {
         // Mocking a successful scenario where users exist
         List<Users> users = Arrays.asList(
-                Users.builder().id(1).name("John").age(30).occupation("Engineer").build(),
-                Users.builder().id(2).name("Alice").age(25).occupation("Doctor").build()
+                Users.builder().id(1).name("John").age(30).occupation("Engineer").createdAt(new Date()).updatedAt(new Date()).build(),
+                Users.builder().id(2).name("Alice").age(25).occupation("Doctor").createdAt(new Date()).updatedAt(new Date()).build()
         );
         when(userService.getAllUser()).thenReturn(users);
 

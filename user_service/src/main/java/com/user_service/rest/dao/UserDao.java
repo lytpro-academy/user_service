@@ -11,6 +11,8 @@ public class UserDao {
         return Users.builder().
                 name(userDto.getName()).
                 age(userDto.getAge()).
-                occupation(userDto.getOccupation()).build();
+                occupation(userDto.getOccupation()).
+                createdAt(userDto.getCreatedAt()).
+                updatedAt(userDto.getUpdatedAt()).build();
     }
 }

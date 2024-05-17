@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NonNull;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Date;
+
 @Data
 @Validated
 @AllArgsConstructor
@@ -14,10 +16,11 @@ import org.springframework.validation.annotation.Validated;
 public class UserDto {
     @NonNull
     @NotEmpty
-    private String name; // 12TOm
-
+    private String name;
     private String occupation;
-
     @NonNull
     private Integer age;
+    private Date createdAt;
+    private Date updatedAt;
+
 }

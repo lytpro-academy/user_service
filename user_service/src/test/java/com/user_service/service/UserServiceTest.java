@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Date;
+
 import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +25,7 @@ class UserServiceTest {
 
     @Test
     void createOrUpdateUser() {
-        Users user = Users.builder().name("Tom").age(12).occupation("Dev").build();
+        Users user = Users.builder().name("Tom").age(12).occupation("Dev").createdAt(new Date()).updatedAt(new Date()).build();
         when(userRepository.save(user)).thenReturn(user);
 
         Users savedUser = userService.createOrUpdateUser(user);

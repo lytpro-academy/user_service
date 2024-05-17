@@ -28,7 +28,6 @@ public class SecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Add custom authentication filter before the default UsernamePasswordAuthenticationFilter
                 .addFilterBefore(new AuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        log.info("http-- "+ http);
 
         // Build and return the security filter chain
         return http.build();
